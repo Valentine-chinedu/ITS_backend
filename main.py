@@ -83,8 +83,7 @@ def get_data_prop(entity, prop_name: str):
     try:
         values = prop[entity]
     except ValueError as e:
-        # Some literals in the ontology may have unknown datatypes that
-        # owlready2 cannot convert to Python — log and skip the value.
+        
         logging.getLogger(__name__).warning(
             "Could not read data property '%s' for %s: %s",
             prop_name,
