@@ -1,0 +1,733 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns="http://www.semanticweb.org/geometry-its#"
+    xml:base="http://www.semanticweb.org/geometry-its"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+    xmlns:swrlb="http://www.w3.org/2003/11/swrlb#">
+
+    <!-- ========================================================= -->
+    <!-- ONTOLOGY HEADER                                           -->
+    <!-- ========================================================= -->
+
+    <owl:Ontology rdf:about="http://www.semanticweb.org/geometry-its">
+        <rdfs:comment>
+            Geometry ITS Ontology – KS3/KS4, reduced shape set (~50%), 
+            with student model, problems and SWRL rules.
+            All concepts have hasConceptCode, hasDescription, hasDifficultyLevel.
+        </rdfs:comment>
+        <owl:versionInfo>6.0-reduced</owl:versionInfo>
+    </owl:Ontology>
+
+    <!-- ========================================================= -->
+    <!-- CLASSES                                                   -->
+    <!-- ========================================================= -->
+
+    <owl:Class rdf:about="#GeometricConcept"/>
+
+    <owl:Class rdf:about="#BasicConcept">
+        <rdfs:subClassOf rdf:resource="#GeometricConcept"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Shape">
+        <rdfs:subClassOf rdf:resource="#GeometricConcept"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#TwoDShape">
+        <rdfs:subClassOf rdf:resource="#Shape"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#ThreeDShape">
+        <rdfs:subClassOf rdf:resource="#Shape"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Theorem">
+        <rdfs:subClassOf rdf:resource="#GeometricConcept"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Transformation">
+        <rdfs:subClassOf rdf:resource="#GeometricConcept"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#CoordinateConcept">
+        <rdfs:subClassOf rdf:resource="#GeometricConcept"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#VectorConcept">
+        <rdfs:subClassOf rdf:resource="#GeometricConcept"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="#StudentModel"/>
+    <owl:Class rdf:about="#Problem"/>
+
+    <!-- ========================================================= -->
+    <!-- DATA PROPERTIES                                           -->
+    <!-- ========================================================= -->
+
+    <owl:DatatypeProperty rdf:about="#hasConceptCode">
+        <rdfs:domain rdf:resource="#GeometricConcept"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#hasDescription">
+        <rdfs:domain rdf:resource="#GeometricConcept"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#hasDifficultyLevel">
+        <rdfs:domain rdf:resource="#GeometricConcept"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#hasProblemText">
+        <rdfs:domain rdf:resource="#Problem"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#hasCorrectAnswer">
+        <rdfs:domain rdf:resource="#Problem"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#hasKSLevel">
+        <rdfs:domain rdf:resource="#GeometricConcept"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+
+    <!-- ========================================================= -->
+    <!-- OBJECT PROPERTIES                                         -->
+    <!-- ========================================================= -->
+
+    <owl:ObjectProperty rdf:about="#hasPrerequisite">
+        <rdfs:domain rdf:resource="#GeometricConcept"/>
+        <rdfs:range rdf:resource="#GeometricConcept"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#knowsConcept">
+        <rdfs:domain rdf:resource="#StudentModel"/>
+        <rdfs:range rdf:resource="#GeometricConcept"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#needsToLearn">
+        <rdfs:domain rdf:resource="#StudentModel"/>
+        <rdfs:range rdf:resource="#GeometricConcept"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#teachesConcept">
+        <rdfs:domain rdf:resource="#Problem"/>
+        <rdfs:range rdf:resource="#GeometricConcept"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasHint">
+        <rdfs:domain rdf:resource="#Problem"/>
+        <rdfs:range rdf:resource="#GeometricConcept"/>
+    </owl:ObjectProperty>
+
+    <!-- ========================================================= -->
+    <!-- INDIVIDUALS                                               -->
+    <!-- Reduced set of shapes (~50%) but full coverage            -->
+    <!-- ========================================================= -->
+
+    <!-- ========== BASIC GEOMETRY ========== -->
+
+    <owl:NamedIndividual rdf:about="#Concept_Point">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Point</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">point</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An exact location in space with no size.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Line">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Line</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">line</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A straight path that extends infinitely in both directions.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Point"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_LineSegment">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Line segment</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">segment</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A part of a line between two endpoints.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Line"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Ray">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Ray</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ray</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A line that starts at a point and extends infinitely in one direction.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Line"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Angle">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Angle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">angle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Formed by two rays with a common endpoint (vertex).</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Ray"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_AcuteAngle">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Acute angle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">acute_angle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An angle less than 90 degrees.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Angle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_RightAngle">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Right angle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">right_angle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An angle of exactly 90 degrees.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Angle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_ObtuseAngle">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Obtuse angle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">obtuse_angle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">An angle greater than 90 but less than 180 degrees.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Angle"/>
+    </owl:NamedIndividual>
+
+    <!-- ========== 2D SHAPES (REDUCED SET) ========== -->
+
+    <owl:NamedIndividual rdf:about="#Concept_Polygon">
+        <rdf:type rdf:resource="#TwoDShape"/>
+        <rdfs:label>Polygon</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">polygon</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A 2D closed shape made of straight line segments.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_LineSegment"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Triangle">
+        <rdf:type rdf:resource="#TwoDShape"/>
+        <rdfs:label>Triangle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">triangle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A polygon with three sides and three angles.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Polygon"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_RightAngledTriangle">
+        <rdf:type rdf:resource="#TwoDShape"/>
+        <rdfs:label>Right-angled triangle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">right_triangle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A triangle with one right angle.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Triangle"/>
+        <hasPrerequisite rdf:resource="#Concept_RightAngle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Quadrilateral">
+        <rdf:type rdf:resource="#TwoDShape"/>
+        <rdfs:label>Quadrilateral</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">quadrilateral</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A polygon with four sides.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Polygon"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Square">
+        <rdf:type rdf:resource="#TwoDShape"/>
+        <rdfs:label>Square</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">square</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A quadrilateral with four equal sides and four right angles.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Quadrilateral"/>
+        <hasPrerequisite rdf:resource="#Concept_RightAngle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Rectangle">
+        <rdf:type rdf:resource="#TwoDShape"/>
+        <rdfs:label>Rectangle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rectangle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A quadrilateral with four right angles and opposite sides equal.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Quadrilateral"/>
+        <hasPrerequisite rdf:resource="#Concept_RightAngle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Circle">
+        <rdf:type rdf:resource="#TwoDShape"/>
+        <rdfs:label>Circle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">circle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">All points are the same distance from a centre point.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Radius">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Radius</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">radius</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Distance from the centre of the circle to a point on the circle.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Circle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Diameter">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Diameter</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">diameter</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A chord passing through the centre of a circle; equal to twice the radius.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Circle"/>
+        <hasPrerequisite rdf:resource="#Concept_Radius"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Circumference">
+        <rdf:type rdf:resource="#BasicConcept"/>
+        <rdfs:label>Circumference</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">circumference</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The distance around a circle, equal to πd or 2πr.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Circle"/>
+        <hasPrerequisite rdf:resource="#Concept_Radius"/>
+    </owl:NamedIndividual>
+
+    <!-- ========== 3D SHAPES (REDUCED SET) ========== -->
+
+    <owl:NamedIndividual rdf:about="#Concept_Cuboid">
+        <rdf:type rdf:resource="#ThreeDShape"/>
+        <rdfs:label>Cuboid</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cuboid</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A 3D shape with 6 rectangular faces.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Cube">
+        <rdf:type rdf:resource="#ThreeDShape"/>
+        <rdfs:label>Cube</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cube</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A cuboid with all edges equal.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Cuboid"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Cylinder">
+        <rdf:type rdf:resource="#ThreeDShape"/>
+        <rdfs:label>Cylinder</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cylinder</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A solid with two parallel circular faces and a curved surface.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Circle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Cone">
+        <rdf:type rdf:resource="#ThreeDShape"/>
+        <rdfs:label>Cone</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">cone</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A solid with a circular base and a single vertex.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Circle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Sphere">
+        <rdf:type rdf:resource="#ThreeDShape"/>
+        <rdfs:label>Sphere</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">sphere</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A 3D shape where all points are the same distance from the centre.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <!-- ========== MEASUREMENT: PERIMETER, AREA, VOLUME ========== -->
+
+    <owl:NamedIndividual rdf:about="#Concept_Perimeter">
+        <rdf:type rdf:resource="#GeometricConcept"/>
+        <rdfs:label>Perimeter</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">perimeter</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The total distance around the boundary of a 2D shape.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_LineSegment"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_AreaRectangle">
+        <rdf:type rdf:resource="#GeometricConcept"/>
+        <rdfs:label>Area of rectangle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">area_rectangle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The area of a rectangle is length × width.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Rectangle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_AreaTriangle">
+        <rdf:type rdf:resource="#GeometricConcept"/>
+        <rdfs:label>Area of triangle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">area_triangle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The area of a triangle is 1/2 × base × height.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Triangle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_AreaCircle">
+        <rdf:type rdf:resource="#GeometricConcept"/>
+        <rdfs:label>Area of circle</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">area_circle</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The area of a circle is πr².</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Circle"/>
+        <hasPrerequisite rdf:resource="#Concept_Radius"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_VolumeCuboid">
+        <rdf:type rdf:resource="#GeometricConcept"/>
+        <rdfs:label>Volume of cuboid</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">volume_cuboid</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The volume of a cuboid is length × width × height.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Cuboid"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_VolumeCylinder">
+        <rdf:type rdf:resource="#GeometricConcept"/>
+        <rdfs:label>Volume of cylinder</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">volume_cylinder</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The volume of a cylinder is πr²h.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Cylinder"/>
+        <hasPrerequisite rdf:resource="#Concept_AreaCircle"/>
+    </owl:NamedIndividual>
+
+    <!-- ========== ANGLE RULES & THEOREMS ========== -->
+
+    <owl:NamedIndividual rdf:about="#Concept_AnglesOnStraightLine">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>Angles on a straight line</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">angles_straight_line</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Angles on a straight line add up to 180 degrees.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Angle"/>
+        <hasPrerequisite rdf:resource="#Concept_Line"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_AnglesAtPoint">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>Angles at a point</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">angles_point</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Angles around a point add up to 360 degrees.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Angle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_TriangleAngleSum">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>Triangle angle sum</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">triangle_sum</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The interior angles of a triangle add up to 180 degrees.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Triangle"/>
+        <hasPrerequisite rdf:resource="#Concept_AnglesOnStraightLine"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_PythagorasTheorem">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>Pythagoras' theorem</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">pythagoras</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">In a right-angled triangle, a² + b² = c², where c is the hypotenuse.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_RightAngledTriangle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_SOHCAHTOA">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>SOH CAH TOA</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">sohcahtoa</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Mnemonic for sine, cosine and tangent ratios in right-angled triangles.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_RightAngledTriangle"/>
+        <hasPrerequisite rdf:resource="#Concept_PythagorasTheorem"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_SimilarTriangles">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>Similar triangles</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">similar_triangles</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Triangles with equal angles and proportional corresponding sides.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Triangle"/>
+        <hasPrerequisite rdf:resource="#Concept_ParallelLineAngles"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_CongruentTriangles">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>Congruent triangles</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">congruent_triangles</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Triangles that are identical in size and shape.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Triangle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_ParallelLineAngles">
+        <rdf:type rdf:resource="#Theorem"/>
+        <rdfs:label>Angles in parallel lines</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">parallel_angles</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Angle relationships for corresponding, alternate and co-interior angles in parallel lines.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_Angle"/>
+        <hasPrerequisite rdf:resource="#Concept_Line"/>
+    </owl:NamedIndividual>
+
+    <!-- ========== TRANSFORMATIONS, COORDINATE, VECTORS ========== -->
+
+    <owl:NamedIndividual rdf:about="#Concept_Translation">
+        <rdf:type rdf:resource="#Transformation"/>
+        <rdfs:label>Translation</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">translation</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A slide of a shape without turning or flipping it.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Rotation">
+        <rdf:type rdf:resource="#Transformation"/>
+        <rdfs:label>Rotation</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">rotation</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A turn of a shape about a fixed point.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Reflection">
+        <rdf:type rdf:resource="#Transformation"/>
+        <rdfs:label>Reflection</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">reflection</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A flip of a shape in a mirror line.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_Enlargement">
+        <rdf:type rdf:resource="#Transformation"/>
+        <rdfs:label>Enlargement</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">enlargement</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A transformation that changes the size of a shape using a scale factor from a centre.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_SimilarTriangles"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_CoordinateGeometry">
+        <rdf:type rdf:resource="#CoordinateConcept"/>
+        <rdfs:label>Coordinate geometry basics</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">coord_basics</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Plotting and reading points on the Cartesian plane.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasKSLevel>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_GradientOfLine">
+        <rdf:type rdf:resource="#CoordinateConcept"/>
+        <rdfs:label>Gradient of a line</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">gradient</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">The steepness of a line, expressed as change in y over change in x.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">3</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_CoordinateGeometry"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_DistanceFormula">
+        <rdf:type rdf:resource="#CoordinateConcept"/>
+        <rdfs:label>Distance formula</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">distance_formula</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Computes distance between two points using Pythagoras' theorem in the coordinate plane.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_CoordinateGeometry"/>
+        <hasPrerequisite rdf:resource="#Concept_PythagorasTheorem"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Concept_VectorBasics">
+        <rdf:type rdf:resource="#VectorConcept"/>
+        <rdfs:label>Vector basics</rdfs:label>
+        <hasConceptCode rdf:datatype="http://www.w3.org/2001/XMLSchema#string">vector_basics</hasConceptCode>
+        <hasDescription rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Directed line segments representing magnitude and direction.</hasDescription>
+        <hasDifficultyLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasDifficultyLevel>
+        <hasKSLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#int">4</hasKSLevel>
+        <hasPrerequisite rdf:resource="#Concept_CoordinateGeometry"/>
+    </owl:NamedIndividual>
+
+    <!-- ========================================================= -->
+    <!-- PROBLEMS                                                  -->
+    <!-- ========================================================= -->
+
+    <owl:NamedIndividual rdf:about="#Problem_Pythagoras_3_4_5">
+        <rdf:type rdf:resource="#Problem"/>
+        <rdfs:label>Pythagoras 3-4-5 triangle</rdfs:label>
+        <hasProblemText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">
+In a right-angled triangle, the two shorter sides are 3 cm and 4 cm. Find the length of the hypotenuse.
+        </hasProblemText>
+        <hasCorrectAnswer rdf:datatype="http://www.w3.org/2001/XMLSchema#string">5</hasCorrectAnswer>
+        <teachesConcept rdf:resource="#Concept_PythagorasTheorem"/>
+        <hasHint rdf:resource="#Concept_RightAngledTriangle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Problem_Triangle_Angles">
+        <rdf:type rdf:resource="#Problem"/>
+        <rdfs:label>Missing angle in a triangle</rdfs:label>
+        <hasProblemText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">
+A triangle has angles of 40° and 65°. Find the third angle.
+        </hasProblemText>
+        <hasCorrectAnswer rdf:datatype="http://www.w3.org/2001/XMLSchema#string">75</hasCorrectAnswer>
+        <teachesConcept rdf:resource="#Concept_TriangleAngleSum"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Problem_Area_Rectangle">
+        <rdf:type rdf:resource="#Problem"/>
+        <rdfs:label>Area of a rectangle</rdfs:label>
+        <hasProblemText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">
+A rectangle has length 8 cm and width 3 cm. Work out its area.
+        </hasProblemText>
+        <hasCorrectAnswer rdf:datatype="http://www.w3.org/2001/XMLSchema#string">24</hasCorrectAnswer>
+        <teachesConcept rdf:resource="#Concept_AreaRectangle"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="#Problem_Volume_Cuboid">
+        <rdf:type rdf:resource="#Problem"/>
+        <rdfs:label>Volume of a cuboid</rdfs:label>
+        <hasProblemText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">
+A cuboid has dimensions 5 cm, 3 cm and 2 cm. Work out its volume.
+        </hasProblemText>
+        <hasCorrectAnswer rdf:datatype="http://www.w3.org/2001/XMLSchema#string">30</hasCorrectAnswer>
+        <teachesConcept rdf:resource="#Concept_VolumeCuboid"/>
+    </owl:NamedIndividual>
+
+    <!-- ========================================================= -->
+    <!-- STUDENT MODEL EXAMPLE                                     -->
+    <!-- ========================================================= -->
+
+    <owl:NamedIndividual rdf:about="#Student_Example">
+        <rdf:type rdf:resource="#StudentModel"/>
+        <rdfs:label>Example student</rdfs:label>
+        <knowsConcept rdf:resource="#Concept_Angle"/>
+        <knowsConcept rdf:resource="#Concept_Line"/>
+        <knowsConcept rdf:resource="#Concept_AnglesOnStraightLine"/>
+    </owl:NamedIndividual>
+
+    <!-- ========================================================= -->
+    <!-- SWRL VARIABLES                                            -->
+    <!-- ========================================================= -->
+
+    <swrl:Variable rdf:about="#s"/>
+    <swrl:Variable rdf:about="#c"/>
+    <swrl:Variable rdf:about="#p"/>
+
+    <!-- ========================================================= -->
+    <!-- SWRL RULES                                                -->
+    <!-- ========================================================= -->
+
+    <!-- Rule:
+         StudentModel(?s) ^ GeometricConcept(?c) ^ hasPrerequisite(?c, ?p) ^ knowsConcept(?s, ?p)
+         -> needsToLearn(?s, ?c)
+    -->
+
+    <swrl:Imp>
+        <swrl:body>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:ClassAtom>
+                        <swrl:classPredicate rdf:resource="#StudentModel"/>
+                        <swrl:argument1 rdf:resource="#s"/>
+                    </swrl:ClassAtom>
+                </rdf:first>
+                <rdf:rest>
+                    <swrl:AtomList>
+                        <rdf:first>
+                            <swrl:ClassAtom>
+                                <swrl:classPredicate rdf:resource="#GeometricConcept"/>
+                                <swrl:argument1 rdf:resource="#c"/>
+                            </swrl:ClassAtom>
+                        </rdf:first>
+                        <rdf:rest>
+                            <swrl:AtomList>
+                                <rdf:first>
+                                    <swrl:IndividualPropertyAtom>
+                                        <swrl:propertyPredicate rdf:resource="#hasPrerequisite"/>
+                                        <swrl:argument1 rdf:resource="#c"/>
+                                        <swrl:argument2 rdf:resource="#p"/>
+                                    </swrl:IndividualPropertyAtom>
+                                </rdf:first>
+                                <rdf:rest>
+                                    <swrl:AtomList>
+                                        <rdf:first>
+                                            <swrl:IndividualPropertyAtom>
+                                                <swrl:propertyPredicate rdf:resource="#knowsConcept"/>
+                                                <swrl:argument1 rdf:resource="#s"/>
+                                                <swrl:argument2 rdf:resource="#p"/>
+                                            </swrl:IndividualPropertyAtom>
+                                        </rdf:first>
+                                        <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+                                    </swrl:AtomList>
+                                </rdf:rest>
+                            </swrl:AtomList>
+                        </rdf:rest>
+                    </swrl:AtomList>
+                </rdf:rest>
+            </swrl:AtomList>
+        </swrl:body>
+        <swrl:head>
+            <swrl:AtomList>
+                <rdf:first>
+                    <swrl:IndividualPropertyAtom>
+                        <swrl:propertyPredicate rdf:resource="#needsToLearn"/>
+                        <swrl:argument1 rdf:resource="#s"/>
+                        <swrl:argument2 rdf:resource="#c"/>
+                    </swrl:IndividualPropertyAtom>
+                </rdf:first>
+                <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+            </swrl:AtomList>
+        </swrl:head>
+    </swrl:Imp>
+
+</rdf:RDF>
