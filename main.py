@@ -9,10 +9,7 @@ from owlready2 import get_ontology, default_world
 app = FastAPI(title="Geometry ITS Backend")
 
 
-# origins = [
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-# ]
+
 
 app.add_middleware(
     CORSMiddleware,
