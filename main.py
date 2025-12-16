@@ -1,280 +1,235 @@
-from typing import List, Optional
-import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from owlready2 import get_ontology, default_world
+from typing import List, Optional, Dict, Any
 
+from owlready2 import get_ontology, sync_reasoner
 
+# ----------------------------
+# Configuration
+# ----------------------------
+ONTO_PATH = "geometry-its.owl"
+FRONTEND_ORIGIN = "http://localhost:3000"
+
+ALLOW_ALL_ORIGINS = True  # dev / prototype
+
+# ----------------------------
+# FastAPI app + CORS
+# ----------------------------
 app = FastAPI(title="Geometry ITS Backend")
-
-
-
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"] if ALLOW_ALL_ORIGINS else [FRONTEND_ORIGIN],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-ONTOLOGY_PATH = "geometry-its.owl"
-
-print("Loading ontology...")
-onto = get_ontology(ONTOLOGY_PATH).load()
+# ----------------------------
+# Load ontology at startup
+# ----------------------------
+print(f"Loading ontology: {ONTO_PATH}")
+onto = get_ontology(ONTO_PATH).load()
 print("Ontology loaded.")
 
+# Resolve core classes (must exist in ontology)
+try:
+    GeometricConcept = onto.GeometricConcept
+    Problem = onto.Problem
+    StudentModel = onto.StudentModel
+except Exception as e:
+    raise RuntimeError(
+        "Ontology is missing required classes (GeometricConcept, Problem, StudentModel). "
+        "Check ontology schema."
+    ) from e
 
-# =========================
-# Pydantic Models
-# =========================
+# Teacher individual (optional, but expected for teacher model)
+VirtualTeacher = onto.search_one(iri="*#VirtualTeacher1")
 
-class Concept(BaseModel):
-    iri: str
-    code: Optional[str]
-    label: str
-    description: Optional[str] = None
-    difficulty: Optional[int] = None
-    prerequisites: List[str]
-    image_key: Optional[str] = None  # used by frontend to map to PNG
+# In-memory cache for student known concepts (prototype storage)
+student_cache: Dict[str, List[str]] = {}
 
+# ----------------------------
+# Utilities
+# ----------------------------
+def first_literal(ind, prop: str):
+    vals = getattr(ind, prop, [])
+    return vals[0] if vals else None
 
-class Problem(BaseModel):
-    iri: str
-    label: str
-    text: str
-    teaches_concepts: List[str]
-    has_hint_concepts: List[str]
+def run_reasoner():
+    """Run OWL+SWRL reasoning."""
+    sync_reasoner(onto, infer_property_values=True)
 
+def build_concept_index() -> Dict[str, Any]:
+    """Build concept_code -> OWL individual index."""
+    idx = {}
+    for c in GeometricConcept.instances():
+        code = first_literal(c, "hasConceptCode")
+        if code:
+            idx[str(code)] = c
+    return idx
 
-class AnswerRequest(BaseModel):
-    problem_iri: str
-    answer: str
+concept_index = build_concept_index()
 
-
-class AnswerResult(BaseModel):
-    correct: bool
-    correct_answer: Optional[str]
-    feedback: str
-
-
-class NextConceptsRequest(BaseModel):
-    mastered_concepts: List[str]
-
-
-# =========================
-# Helper functions
-# =========================
-
-def get_label(entity) -> str:
-    if hasattr(entity, "label") and entity.label:
-        return entity.label[0]
-    return entity.name  # fallback
-
-
-def get_data_prop(entity, prop_name: str):
-    prop = getattr(onto, prop_name, None)
-    if not prop:
-        return None
-    try:
-        values = prop[entity]
-    except ValueError as e:
-        
-        logging.getLogger(__name__).warning(
-            "Could not read data property '%s' for %s: %s",
-            prop_name,
-            getattr(entity, "iri", str(entity)),
-            e,
-        )
-        return None
-    except Exception:
-        # Unexpected errors — don't crash the whole request
-        logging.getLogger(__name__).exception(
-            "Unexpected error reading data property '%s'", prop_name
-        )
-        return None
-
-    if not values:
-        return None
-
-    val = values[0]
-    # Return the raw value; callers will coerce/convert as needed.
-    try:
-        return val
-    except Exception:
-        try:
-            return str(val)
-        except Exception:
-            return None
-
-
-def get_concept_code(entity) -> Optional[str]:
-    val = get_data_prop(entity, "hasConceptCode")
-    return str(val) if val is not None else None
-
-
-def find_concept_by_code(code: str):
-    if not hasattr(onto, "GeometricConcept"):
-        return None
-    for c in onto.GeometricConcept.instances():
-        if get_concept_code(c) == code:
-            return c
-    return None
-
-
-def concept_to_model(c) -> Concept:
-    code = get_concept_code(c)
-    difficulty = get_data_prop(c, "hasDifficultyLevel")
-    desc = get_data_prop(c, "hasDescription")
+def concept_to_dict(c) -> dict:
+    code = first_literal(c, "hasConceptCode")
+    label = first_literal(c, "label") or c.name
+    desc = first_literal(c, "hasDescription")
+    diff = first_literal(c, "hasDifficultyLevel")
+    ks = first_literal(c, "hasKSLevel")
 
     prereq_codes: List[str] = []
-    if hasattr(onto, "hasPrerequisite"):
-        for p in getattr(c, "hasPrerequisite", []):
-            pc = get_concept_code(p)
-            if pc:
-                prereq_codes.append(pc)
+    for p in getattr(c, "hasPrerequisite", []):
+        pc = first_literal(p, "hasConceptCode")
+        if pc:
+            prereq_codes.append(str(pc))
 
-    # Auto-mapping for images: by default image_key == code
-    image_key = code
+    return {
+        "iri": c.iri,
+        "code": str(code) if code else "",
+        "label": str(label),
+        "description": str(desc) if desc is not None else None,
+        "difficulty": int(diff) if diff is not None else None,
+        "ks_level": int(ks) if ks is not None else None,
+        "prerequisites": prereq_codes,
+        # auto-mapping: /public/shapes/{image_key}.png in Next.js
+        "image_key": str(code) if code else None,
+    }
 
-    # Normalize difficulty to an int if possible
-    difficulty_int: Optional[int] = None
-    if difficulty is not None:
-        try:
-            difficulty_int = int(difficulty)
-        except (TypeError, ValueError):
-            try:
-                difficulty_int = int(str(difficulty))
-            except Exception:
-                difficulty_int = None
+def problem_to_dict(p) -> dict:
+    label = first_literal(p, "label") or p.name
+    text = first_literal(p, "hasProblemText") or ""
+    ans = first_literal(p, "hasCorrectAnswer") or ""
 
-    return Concept(
-        iri=c.iri,
-        code=code,
-        label=get_label(c),
-        description=str(desc) if desc is not None else None,
-        difficulty=difficulty_int,
-        prerequisites=prereq_codes,
-        image_key=image_key,
-    )
+    concept_code = None
+    teaches = getattr(p, "teachesConcept", [])
+    if teaches:
+        c = teaches[0]
+        cc = first_literal(c, "hasConceptCode")
+        if cc:
+            concept_code = str(cc)
 
+    return {
+        "iri": p.iri,
+        "label": str(label),
+        "text": str(text),
+        "correct_answer": str(ans),
+        "concept_code": concept_code,
+    }
 
-# =========================
-# API Endpoints
-# =========================
+def get_or_create_student(student_id: str):
+    """Get or create OWL individual Student_{id}."""
+    s = onto.search_one(iri=f"*#Student_{student_id}")
+    if s:
+        return s
+    with onto:
+        return StudentModel(f"Student_{student_id}")
 
-@app.get("/concepts", response_model=List[Concept])
-def list_concepts():
-    if not hasattr(onto, "GeometricConcept"):
+def update_student_in_ontology(student_id: str, known_codes: List[str]):
+    """
+    Update StudentModel individual with knowsConcept assertions
+    and run reasoner to infer needsToLearn etc.
+    """
+    # cache (prevents accidental overwrites across requests)
+    student_cache[student_id] = list(dict.fromkeys(known_codes))
+
+    s = get_or_create_student(student_id)
+
+    # Clear + repopulate knowsConcept
+    s.knowsConcept = []
+    for code in student_cache[student_id]:
+        c_ind = concept_index.get(code)
+        if c_ind:
+            s.knowsConcept.append(c_ind)
+
+    run_reasoner()
+    return s
+
+def student_recommendations(s_ind) -> List[dict]:
+    """Read inferred needsToLearn(Student, Concept)."""
+    recs = []
+    for c in getattr(s_ind, "needsToLearn", []):
+        recs.append(concept_to_dict(c))
+    return recs
+
+def teacher_recommendations() -> List[dict]:
+    """Read recommendsConcept(VirtualTeacher1, Concept)."""
+    if not VirtualTeacher:
         return []
-    return [concept_to_model(c) for c in onto.GeometricConcept.instances()]
+    return [concept_to_dict(c) for c in getattr(VirtualTeacher, "recommendsConcept", [])]
 
+def teacher_misconceptions() -> List[dict]:
+    """Read detectsMisconception(VirtualTeacher1, MisconceptionPattern)."""
+    if not VirtualTeacher:
+        return []
+    out = []
+    for m in getattr(VirtualTeacher, "detectsMisconception", []):
+        code = first_literal(m, "addressesConceptCode")
+        if code:
+            out.append({
+                "concept_code": str(code),
+                "message": f"The system detected a possible misconception related to concept: {code}"
+            })
+    return out
 
-@app.get("/concepts/{code}", response_model=Concept)
+# ----------------------------
+# Request models
+# ----------------------------
+class StudentUpdateRequest(BaseModel):
+    student_id: str
+    known_concepts: List[str]
+
+# ----------------------------
+# API Endpoints
+# ----------------------------
+@app.get("/concepts")
+def list_concepts():
+    return [concept_to_dict(c) for c in GeometricConcept.instances()]
+
+@app.get("/concept/{code}")
 def get_concept(code: str):
-    c = find_concept_by_code(code)
+    c = concept_index.get(code)
     if not c:
         raise HTTPException(status_code=404, detail="Concept not found")
-    return concept_to_model(c)
+    return concept_to_dict(c)
 
+@app.get("/problems")
+def list_problems(concept_code: Optional[str] = None):
+    results = []
+    for p in Problem.instances():
+        d = problem_to_dict(p)
+        if concept_code is None or d["concept_code"] == concept_code:
+            results.append(d)
+    return results
 
-@app.post("/next-concepts", response_model=List[Concept])
-def suggest_next_concepts(req: NextConceptsRequest):
-    """
-    Recommend concepts whose prerequisites are all in mastered_concepts
-    and which are not already mastered.
-    """
-    mastered = set(req.mastered_concepts)
-    suggestions: List[Concept] = []
+@app.post("/student/update")
+def student_update(req: StudentUpdateRequest):
+    s_ind = update_student_in_ontology(req.student_id, req.known_concepts)
+    recs = student_recommendations(s_ind)
+    miscon = teacher_misconceptions()
 
-    if not hasattr(onto, "GeometricConcept"):
-        return suggestions
+    return {
+        "student": {
+            "student_id": req.student_id,
+            "known_concepts": student_cache.get(req.student_id, []),
+        },
+        "recommended_concepts": recs,
+        "misconceptions": miscon,
+    }
 
-    for c in onto.GeometricConcept.instances():
-        code = get_concept_code(c)
-        if not code or code in mastered:
-            continue
+@app.get("/recommend/{student_id}")
+def recommend(student_id: str):
+    s_ind = get_or_create_student(student_id)
+    run_reasoner()
+    return {"concepts": student_recommendations(s_ind)}
 
-        prereq_codes: List[str] = []
-        if hasattr(onto, "hasPrerequisite"):
-            for p in getattr(c, "hasPrerequisite", []):
-                pc = get_concept_code(p)
-                if pc:
-                    prereq_codes.append(pc)
-
-        if set(prereq_codes).issubset(mastered):
-            suggestions.append(concept_to_model(c))
-
-    suggestions.sort(key=lambda x: (x.difficulty or 999, x.label.lower()))
-    return suggestions
-
-
-@app.get("/problems", response_model=List[Problem])
-def list_problems():
-    problems: List[Problem] = []
-    if not hasattr(onto, "Problem"):
-        return problems
-
-    for p in onto.Problem.instances():
-        label = get_label(p)
-        text = get_data_prop(p, "hasProblemText") or ""
-
-        teaches_codes: List[str] = []
-        if hasattr(onto, "teachesConcept"):
-            for c in getattr(p, "teachesConcept", []):
-                code = get_concept_code(c)
-                if code:
-                    teaches_codes.append(code)
-
-        hint_codes: List[str] = []
-        if hasattr(onto, "hasHint"):
-            for c in getattr(p, "hasHint", []):
-                code = get_concept_code(c)
-                if code:
-                    hint_codes.append(code)
-
-        problems.append(
-            Problem(
-                iri=p.iri,
-                label=label,
-                text=str(text),
-                teaches_concepts=teaches_codes,
-                has_hint_concepts=hint_codes,
-            )
-        )
-
-    return problems
-
-
-@app.post("/check-answer", response_model=AnswerResult)
-def check_answer(req: AnswerRequest):
-    try:
-        problem = default_world[req.problem_iri]
-    except KeyError:
-        raise HTTPException(status_code=404, detail="Problem not found")
-
-    correct_answer = get_data_prop(problem, "hasCorrectAnswer")
-    if correct_answer is None:
-        return AnswerResult(
-            correct=False,
-            correct_answer=None,
-            feedback="This problem does not have a stored correct answer.",
-        )
-
-    user_ans = req.answer.strip().lower()
-    correct_norm = str(correct_answer).strip().lower()
-
-    if user_ans == correct_norm:
-        return AnswerResult(
-            correct=True,
-            correct_answer=str(correct_answer),
-            feedback="Correct! Well done.",
-        )
-    else:
-        return AnswerResult(
-            correct=False,
-            correct_answer=str(correct_answer),
-            feedback="Not quite. Review the concept and try again.",
-        )
-
+@app.get("/teacher/recommend/{student_id}")
+def teacher_recommend(student_id: str):
+    # ensure student exists (ties teacher outputs to current ontology state)
+    get_or_create_student(student_id)
+    run_reasoner()
+    return {
+        "recommended_concepts": teacher_recommendations(),
+        "misconceptions": teacher_misconceptions(),
+    }
