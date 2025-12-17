@@ -44,7 +44,7 @@ except Exception as e:
         "Check ontology schema."
     ) from e
 
-# Teacher individual (optional, but expected for teacher model)
+# Teacher individual
 VirtualTeacher = onto.search_one(iri="*#VirtualTeacher1")
 
 # In-memory cache for student known concepts (prototype storage)
